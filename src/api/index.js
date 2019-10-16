@@ -1,10 +1,19 @@
 import { version } from "../../package.json";
 import { Router } from "express";
+import Ajv from "ajv";
+import task from "../model/task";
+var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
+
+
 
 export default ({ config, db }) => {
   let api = Router();
 
+
+
+
   api.get("/task", (req, res) => {
+
     //find id in task table and return the task
     db.query("SELECT * from tasks", (err, response) => {
       if (err) {
@@ -28,9 +37,16 @@ export default ({ config, db }) => {
   //   });
   // });
 
-  api.post("/task", (req, res) => {
+  api.post("/task", (req, res,next) => {
     //take task from req and insert into task table
     console.log("body", req.body);
+    var validate = ajv.compile(task);
+    var valid = validate(req.body);
+    if (!valid)
+    {
+       console.log(validate.errors);
+       return next({Errors:validate.errors});
+    }
     const { name } = req.body;
     const uuidv1 = require("uuid/v1");
     const id = uuidv1();

@@ -30,8 +30,15 @@ app.use(
 
 app.use(middleware({ envVariables, db }));
 
+//middle for checking users
+
 // api router
 app.use("/api", api({ envVariables, db }));
+
+//error handling
+app.use((err, req, res, next) =>{
+  res.status(400).json(err);
+});
 
 app.server.listen(process.env.PORT || envVariables.SERVER_PORT, () => {
   console.log(`Started on port ${app.server.address().port}`);
